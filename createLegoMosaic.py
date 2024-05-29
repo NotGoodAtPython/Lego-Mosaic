@@ -83,20 +83,11 @@ def recolor_image(image, colors):
     new_data = np.apply_along_axis(find_nearest_color, 2, data)
     return Image.fromarray(new_data.astype('uint8'), 'RGB')
 
-def display_image(image, original_filepath, zoom_factor=11):
+def display_image(image, original_filepath, zoom_factor=12):
     result = []
     window = tk.Toplevel()
     window.title("Image Preview")
-    
-    zoomed_size = (image.width * zoom_factor, image.height * zoom_factor)
-    zoomed_image = image.resize(zoomed_size, Image.NEAREST)
 
-    canvas = tk.Canvas(window, width=zoomed_image.width, height=zoomed_image.height)
-    canvas.pack()
-    
-    tk_image = ImageTk.PhotoImage(zoomed_image)
-    canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
-    
     def on_ok():
         new_filepath = save_image(image, original_filepath)
         result.append(new_filepath)
@@ -109,15 +100,25 @@ def display_image(image, original_filepath, zoom_factor=11):
     def on_close():
         result.append(None)
         window.destroy()
+    
+    zoomed_size = (image.width * zoom_factor, image.height * zoom_factor)
+    zoomed_image = image.resize(zoomed_size, Image.NEAREST)
 
     btn_frame = tk.Frame(window)
-    btn_frame.pack(fill=tk.X, pady=5)
+    btn_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=5)
     
     btn_ok = tk.Button(btn_frame, text="Okay", command=on_ok)
     btn_ok.pack(side=tk.LEFT, padx=5)
     
     btn_cancel = tk.Button(btn_frame, text="Cancel", command=on_cancel)
     btn_cancel.pack(side=tk.RIGHT, padx=5)
+
+    canvas = tk.Canvas(window, width=zoomed_image.width, height=zoomed_image.height)
+    canvas.pack()
+    
+    tk_image = ImageTk.PhotoImage(zoomed_image)
+    canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
+    
     
     window.protocol("WM_DELETE_WINDOW", on_cancel)
     window.wait_window(window)
